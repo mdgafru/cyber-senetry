@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "node scripts/generate-sitemap.mjs && next build",
     "generate-sitemap": "node scripts/generate-sitemap.mjs",
+    "ping-sitemap": "node scripts/ping-google-sitemap.mjs",
     "start": "next start",
     "lint": "next lint",
     "refresh-images": "node scripts/refresh-hero-images.mjs"
