@@ -1,9 +1,9 @@
 /**
- * Writes lib/seo/sitemap.generated.xml at build time.
- * Served via app/sitemap.xml/route.ts (no Content-Disposition: inline).
+ * Build-time sitemap → public/sitemap.xml (CDN static file, no serverless on fetch).
+ * Requires NEXT_PUBLIC_SUPABASE_* on Vercel; keeps existing file if env/DB unavailable.
  */
 import { createClient } from '@supabase/supabase-js';
-import { readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -11,6 +11,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
 const PRODUCTION_SITE = 'https://www.cybersentry360.com';
 const DESK_SLUGS = ['ai', 'cybersecurity', 'threats', 'policy', 'cloud', 'data'];
+const publicOut = resolve(root, 'public', 'sitemap.xml');
 
 function resolveSiteUrl() {
   const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim();
@@ -69,24 +70,8 @@ function urlEntry(loc, lastmod, changefreq, priority) {
   </url>`;
 }
 
-async function main() {
-  loadEnv();
-  const SITE_URL = resolveSiteUrl();
+function buildXml(SITE_URL, posts) {
   const today = new Date().toISOString().slice(0, 10);
-  let posts = [];
-
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (url && key) {
-    const db = createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
-    const { data } = await db
-      .from('posts')
-      .select('slug, updated_at, published_at, tags')
-      .eq('status', 'published')
-      .order('published_at', { ascending: false });
-    posts = data || [];
-  }
-
   const tagSet = new Set();
   for (const post of posts) {
     for (const tag of post.tags || []) {
@@ -112,23 +97,58 @@ async function main() {
     ),
   ];
 
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+  return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${entries.join('\n')}
 </urlset>
 `;
+}
 
+async function main() {
+  loadEnv();
+  const SITE_URL = resolveSiteUrl();
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!url || !key) {
+    if (existsSync(publicOut)) {
+      console.warn('Supabase env missing — keeping existing public/sitemap.xml');
+      return;
+    }
+    const fallback = buildXml(SITE_URL, []);
+    writeFileSync(publicOut, fallback, 'utf8');
+    console.warn('Supabase env missing — wrote minimal sitemap (static pages only)');
+    return;
+  }
+
+  let posts = [];
+  try {
+    const db = createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
+    const { data, error } = await db
+      .from('posts')
+      .select('slug, updated_at, published_at, tags')
+      .eq('status', 'published')
+      .order('published_at', { ascending: false });
+    if (error) throw error;
+    posts = data || [];
+  } catch (err) {
+    if (existsSync(publicOut)) {
+      console.warn('Supabase fetch failed — keeping existing public/sitemap.xml:', err.message || err);
+      return;
+    }
+    console.warn('Supabase fetch failed — writing minimal sitemap:', err.message || err);
+    posts = [];
+  }
+
+  const xml = buildXml(SITE_URL, posts);
   if (xml.includes('localhost') || xml.includes('127.0.0.1')) {
     console.error('Refusing to write sitemap with localhost URLs.');
     process.exit(1);
   }
 
-  const outDir = resolve(root, 'lib/seo');
-  const publicOut = resolve(root, 'public', 'sitemap.xml');
-  mkdirSync(outDir, { recursive: true });
-  writeFileSync(resolve(outDir, 'sitemap.generated.xml'), xml, 'utf8');
   writeFileSync(publicOut, xml, 'utf8');
-  console.log(`Wrote ${publicOut} (${entries.length} URLs) for ${SITE_URL}`);
+  const count = (xml.match(/<url>/g) || []).length;
+  console.log(`Wrote ${publicOut} (${count} URLs) for ${SITE_URL}`);
 }
 
 main().catch((err) => {

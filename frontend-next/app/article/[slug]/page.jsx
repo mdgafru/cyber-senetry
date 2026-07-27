@@ -10,8 +10,13 @@ import { getSiteUrl } from '@/lib/seo/site-url';
 export const revalidate = 60;
 
 export async function generateStaticParams() {
-  const slugs = await getPublishedSlugs();
-  return slugs.map((slug) => ({ slug }));
+  try {
+    const slugs = await getPublishedSlugs();
+    // Pre-render recent articles at build; rest via ISR on first visit (faster deploys).
+    return slugs.slice(0, 12).map((slug) => ({ slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }) {
