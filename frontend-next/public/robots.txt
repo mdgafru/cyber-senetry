@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+Allow: /sitemap.xml
+Allow: /article/
+Allow: /category/
+Allow: /tag/
+Allow: /search
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
+
+User-agent: Googlebot
+Allow: /
+Allow: /sitemap.xml
+Allow: /article/
+Allow: /category/
+Allow: /tag/
+Allow: /search
+Disallow: /admin/
+Disallow: /api/
+
+Sitemap: https://www.cybersentry360.com/sitemap.xml

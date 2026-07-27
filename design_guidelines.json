@@ -1,0 +1,81 @@
+{
+  "theme": "LIGHT",
+  "archetype": "4 (Swiss & High-Contrast)",
+  "vibe": "Swiss Brutalism meets High-End Editorial. Raw, strict geometric grids, exposed structures, thick borders, contrasting serif and mono typography. Focus on truth, institutional confidence, and zero decoration.",
+  "colors": {
+    "background": "#F4F4F0",
+    "foreground": "#0A0A0A",
+    "primary": "#E63946",
+    "primary_foreground": "#FFFFFF",
+    "secondary": "#1D3557",
+    "secondary_foreground": "#FFFFFF",
+    "muted": "#E5E5E0",
+    "muted_foreground": "#5A5A5A",
+    "accent": "#FFB703",
+    "accent_foreground": "#0A0A0A",
+    "border": "#0A0A0A",
+    "input": "#E5E5E0",
+    "card": "#FFFFFF",
+    "card_foreground": "#0A0A0A"
+  },
+  "typography": {
+    "fonts": {
+      "headings": "Chivo, sans-serif",
+      "features": "Cormorant Garamond, serif",
+      "body": "IBM Plex Sans, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "scale": {
+      "h1": "text-5xl md:text-7xl font-black tracking-tighter uppercase",
+      "h2": "text-3xl md:text-4xl font-bold tracking-tight",
+      "h3": "text-2xl font-bold",
+      "body": "text-lg leading-relaxed",
+      "overline": "text-xs font-mono tracking-[0.2em] uppercase",
+      "meta": "text-sm font-mono text-muted-foreground"
+    }
+  },
+  "layout": {
+    "spacing": "Generous internal padding (p-6, p-8) within hard-bordered containers. No border radius (rounded-none).",
+    "grid": "Visible, spreadsheet-style grid. 1px or 2px solid #0A0A0A borders (border-collapse style).",
+    "reader_facing": "Bento blocks, oversized typography, asymmetrical layouts within a strict visible grid. Thick horizontal rules.",
+    "admin_dashboard": "Strict control-room density. Spreadsheet-style grids. Utilitarian, mono-heavy."
+  },
+  "components": {
+    "buttons": "Square edges (rounded-none), thick borders, solid fills, sharp hover states with hard drop shadows (e.g. shadow-[4px_4px_0_0_#0A0A0A]).",
+    "cards": "border-2 border-foreground bg-card p-6 rounded-none",
+    "navigation": "Sticky, thick bottom border, heavily utilizing JetBrains Mono for links.",
+    "tags": "border border-foreground bg-white px-2 py-1 font-mono text-xs uppercase hover:bg-foreground hover:text-white transition-colors"
+  },
+  "images": [
+    {
+      "url": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzN8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMHNlcnZlciUyMGRhdGElMjBjZW50ZXJ8ZW58MHx8fHwxNzgzNDQ3OTI4fDA&ixlib=rb-4.1.0&q=85",
+      "category": "hero_cloud",
+      "description": "Cable network, abstract data center for Cloud & Data articles"
+    },
+    {
+      "url": "https://images.pexels.com/photos/5050305/pexels-photo-5050305.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "category": "hero_infrastructure",
+      "description": "Server cable trays for Infrastructure and Backend deep dives"
+    },
+    {
+      "url": "https://images.pexels.com/photos/32989636/pexels-photo-32989636.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "category": "hero_threats",
+      "description": "Weathered padlock on metal gate for Threats & Policy articles"
+    },
+    {
+      "url": "https://images.unsplash.com/photo-1674027444485-cec3da58eef4?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwxfHxhcnRpZmljaWFsJTIwaW50ZWxsaWdlbmNlJTIwYnJhaW4lMjBuZXR3b3JrfGVufDB8fHx8MTc4MzQ0NzkyOHww&ixlib=rb-4.1.0&q=85",
+      "category": "hero_ai",
+      "description": "Abstract AI brain sphere for Artificial Intelligence trends"
+    }
+  ],
+  "accessibility_and_testing": "All interactive elements MUST have data-testid attributes (e.g. data-testid='login-submit-button'). Ensure 4.5:1 contrast for all text. Focus states must be 2px solid #E63946 offset rings.",
+  "instructions_to_main_agent": [
+    "Use raw HTML/Tailwind for the reader-facing site to enforce the Swiss brutalist bento/grid layout. Avoid standard Shadcn cards for articles; use bare divs with thick borders (border-2 border-foreground) and no radius.",
+    "Use Shadcn UI for the Admin CMS, but customize it: rounded-none, heavy borders, monospace data tables.",
+    "Do NOT use Inter. Use Chivo for headlines, Cormorant Garamond for elegant feature text, and JetBrains Mono for utility/metadata. Provide these font-families in tailwind.config.js.",
+    "Implement an explicit CSS grid layout where borders are exposed, reminiscent of a spreadsheet or a dossier. Tension is created through asymmetry and heavy typographic weight.",
+    "The primary CTA color is Signal Red (#E63946).",
+    "Images should ideally be stark, avoiding overly warm/corporate stock tones.",
+    "Use data-testid on every single button, input, tab, and navigation link."
+  ]
+}

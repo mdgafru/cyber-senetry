@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 60 20% 95%;
+    --foreground: 0 0% 4%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 4%;
+    --primary: 355 78% 56%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 213 49% 23%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 60 8% 89%;
+    --muted-foreground: 0 0% 15%;
+    --accent: 42 100% 50%;
+    --accent-foreground: 0 0% 4%;
+    --destructive: 355 78% 56%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 4%;
+    --input: 60 8% 89%;
+    --ring: 355 78% 56%;
+    --radius: 0rem;
+  }
+}
+
+@layer base {
+  * { border-color: hsl(var(--border)); }
+  html, body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+  a, button, [role="button"], summary, label[for] {
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  ::selection { background: #E63946; color: #fff; }
+  *:focus-visible { outline: 2px solid #E63946; outline-offset: 2px; }
+}
+
+@layer components {
+  .brutal-border { @apply border-2 border-foreground; }
+  .brutal-btn {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3 font-mono uppercase text-xs tracking-widest border-2 border-foreground bg-background text-foreground cursor-pointer select-none;
+    transition: background-color 0.12s ease, color 0.12s ease, box-shadow 0.12s ease;
+  }
+  .brutal-btn:hover:not(:disabled) { box-shadow: 3px 3px 0 0 #0A0A0A; }
+  .brutal-btn:active:not(:disabled) { box-shadow: none; transform: translate(1px, 1px); }
+  .brutal-btn:disabled { @apply opacity-60 cursor-not-allowed; }
+  .brutal-btn-primary { @apply brutal-btn bg-primary text-primary-foreground; }
+  .brutal-btn-primary:hover:not(:disabled) { box-shadow: 3px 3px 0 0 #0A0A0A; }
+  .overline { @apply font-mono text-sm uppercase tracking-[0.2em]; }
+  .lead-muted {
+    @apply font-serif italic font-semibold text-foreground text-base md:text-lg leading-snug;
+  }
+  .article-subtitle {
+    @apply font-serif italic font-semibold text-foreground text-lg md:text-xl leading-snug;
+    color: hsl(var(--foreground));
+  }
+  .text-caption {
+    @apply text-base text-foreground/85;
+  }
+  .tag-chip {
+    @apply inline-block border border-foreground bg-white px-2 py-1 font-mono text-[10px] uppercase tracking-wider cursor-pointer hover:bg-foreground hover:text-white transition-colors duration-100;
+  }
+  .prose-editorial p { @apply mb-3.5 leading-relaxed w-full; font-family: 'IBM Plex Sans', sans-serif; font-size: 1.05rem; word-wrap: break-word; overflow-wrap: anywhere; }
+  .prose-editorial h2 { @apply mt-7 mb-2.5 font-heading font-black uppercase text-xl md:text-2xl tracking-tight border-b-2 border-foreground pb-2 scroll-mt-20; }
+  .prose-editorial h3 { @apply mt-5 mb-2 font-heading font-bold text-lg md:text-xl scroll-mt-20; }
+  .prose-editorial blockquote,
+  .article-quote {
+    @apply my-4 border-l-4 border-primary pl-4 italic font-serif text-lg md:text-xl text-foreground/90;
+  }
+  .prose-editorial ul,
+  .article-ul { @apply mb-3.5 pl-5 list-disc space-y-1.5 text-[1.05rem] leading-relaxed; }
+  .prose-editorial ol,
+  .article-ol { @apply mb-3.5 pl-5 list-decimal space-y-1.5 text-[1.05rem] leading-relaxed; }
+  .prose-editorial li { @apply marker:text-primary marker:font-bold; }
+  .prose-editorial a,
+  .article-link {
+    @apply underline decoration-primary decoration-2 underline-offset-4 hover:text-primary transition-colors font-medium cursor-pointer;
+  }
+  .article-table-wrap {
+    @apply my-4 overflow-x-auto border-2 border-foreground bg-card;
+  }
+  .article-table {
+    @apply w-full min-w-[420px] border-collapse font-mono text-xs;
+  }
+  .article-table th {
+    @apply bg-foreground text-background text-left px-3 py-2 uppercase tracking-widest text-[9px] font-medium border-b-2 border-foreground;
+  }
+  .article-table td {
+    @apply px-3 py-2 border-b border-muted align-top leading-snug;
+  }
+  .article-table tbody tr:hover { @apply bg-muted/70; }
+  .article-table tbody tr:last-child td { @apply border-b-0; }
+}
