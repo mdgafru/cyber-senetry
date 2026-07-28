@@ -1,9 +1,9 @@
 /**
- * Build-time sitemap → public/sitemap.xml (CDN static file, no serverless on fetch).
+ * Build-time sitemap → public/sitemap/sitemap.xml (CDN static, GSC-friendly path).
  * Requires NEXT_PUBLIC_SUPABASE_* on Vercel; keeps existing file if env/DB unavailable.
  */
 import { createClient } from '@supabase/supabase-js';
-import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -11,7 +11,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
 const PRODUCTION_SITE = 'https://www.cybersentry360.com';
 const DESK_SLUGS = ['ai', 'cybersecurity', 'threats', 'policy', 'cloud', 'data'];
-const publicOut = resolve(root, 'public', 'sitemap.xml');
+const publicOut = resolve(root, 'public', 'sitemap', 'sitemap.xml');
 
 function resolveSiteUrl() {
   const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim();
@@ -146,6 +146,7 @@ async function main() {
     process.exit(1);
   }
 
+  mkdirSync(dirname(publicOut), { recursive: true });
   writeFileSync(publicOut, xml, 'utf8');
   const count = (xml.match(/<url>/g) || []).length;
   console.log(`Wrote ${publicOut} (${count} URLs) for ${SITE_URL}`);

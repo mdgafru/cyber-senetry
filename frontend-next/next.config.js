@@ -16,6 +16,7 @@ const nextConfig = {
   async redirects() {
     return [
       { source: '/api/robots.txt', destination: '/robots.txt', permanent: true },
+      { source: '/sitemap.xml', destination: '/sitemap/sitemap.xml', permanent: true },
     ];
   },
 };

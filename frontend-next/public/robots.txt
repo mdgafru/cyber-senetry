@@ -19,4 +19,4 @@ Allow: /search
 Disallow: /admin/
 Disallow: /api/
 
-Sitemap: https://www.cybersentry360.com/sitemap.xml
+Sitemap: https://www.cybersentry360.com/sitemap/sitemap.xml
