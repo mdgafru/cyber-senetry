@@ -1,23 +1,7 @@
-import Script from 'next/script';
-
-/** Alli AI SEO widget — loads on public pages (admin blocked via robots.txt). */
-const ALLI_SITE_ID = 'site_z9tAYtTvkAbF8d1k';
+/** Alli AI SEO widget — exact snippet format required for Alli install verification. */
+const ALLI_SCRIPT_SRC =
+  'data:text/javascript;base64,LyogQWxsaSBBSSB3aWRnZXQgZm9yIHd3dy5jeWJlcnNlbnRyeTM2MC5jb20gKi8KKGZ1bmN0aW9uICh3LGQscyxvLGYsanMsZmpzKSB7d1snQWxsaUpTV2lkZ2V0J109bzt3W29dID0gd1tvXSB8fCBmdW5jdGlvbiAoKSB7ICh3W29dLnEgPSB3W29dLnEgfHwgW10pLnB1c2goYXJndW1lbnRzKSB9O2pzID0gZC5jcmVhdGVFbGVtZW50KHMpLCBmanMgPSBkLmdldEVsZW1lbnRzQnlUYWdOYW1lKHMpWzBdO2pzLmlkID0gbzsganMuc3JjID0gZjsganMuYXN5bmMgPSAxOyBmanMucGFyZW50Tm9kZS5pbnNlcnRCZWZvcmUoanMsIGZqcyk7fSh3aW5kb3csIGRvY3VtZW50LCAnc2NyaXB0JywgJ2FsbGknLCAnaHR0cHM6Ly9zdGF0aWMuYWxsaWFpLmNvbS93aWRnZXQvdjEuanMnKSk7YWxsaSgnaW5pdCcsICdzaXRlX3o5dEFZdFR2a0FiRjhkMWsnKTthbGxpKCdvcHRpbWl6ZScsICdhbGwnKTs=';
 
 export default function AlliAiScript() {
-  return (
-    <Script id="alli-ai-widget" strategy="beforeInteractive">
-      {`
-        /* Alli AI widget for www.cybersentry360.com */
-        (function (w,d,s,o,f,js,fjs) {
-          w['AlliJSWidget']=o;
-          w[o]=w[o]||function(){(w[o].q=w[o].q||[]).push(arguments)};
-          js=d.createElement(s);fjs=d.getElementsByTagName(s)[0];
-          js.id=o;js.src=f;js.async=1;
-          fjs.parentNode.insertBefore(js,fjs);
-        }(window,document,'script','alli','https://static.alliai.com/widget/v1.js'));
-        alli('init','${ALLI_SITE_ID}');
-        alli('optimize','all');
-      `}
-    </Script>
-  );
+  return <script type="text/javascript" src={ALLI_SCRIPT_SRC} suppressHydrationWarning />;
 }
