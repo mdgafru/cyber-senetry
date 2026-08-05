@@ -70,13 +70,22 @@ function urlEntry(loc, lastmod, changefreq, priority) {
   </url>`;
 }
 
+function tagToSlug(tag) {
+  return String(tag)
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 function buildXml(SITE_URL, posts) {
   const today = new Date().toISOString().slice(0, 10);
-  const tagSet = new Set();
+  const tagSlugs = new Set();
   for (const post of posts) {
     for (const tag of post.tags || []) {
       const t = String(tag).trim();
-      if (t) tagSet.add(t);
+      if (t) tagSlugs.add(tagToSlug(t));
     }
   }
 
@@ -92,8 +101,8 @@ function buildXml(SITE_URL, posts) {
         '0.9'
       )
     ),
-    ...[...tagSet].slice(0, 120).map((tag) =>
-      urlEntry(`${SITE_URL}/tag/${encodeURIComponent(tag)}`, today, 'weekly', '0.4')
+    ...[...tagSlugs].slice(0, 120).map((slug) =>
+      urlEntry(`${SITE_URL}/tag/${slug}`, today, 'weekly', '0.4')
     ),
   ];
 

@@ -11,6 +11,7 @@ import ArticleContent from '@/components/article/ArticleContent';
 import FAQSection from '@/components/article/FAQSection';
 import ShareBar from '@/components/article/ShareBar';
 import { NewsletterSubscribe } from '@/components/NewsletterSubscribe';
+import { tagHref } from '@/lib/seo/tag-slug';
 
 export default function ArticlePageClient({ article }) {
   const { slug } = article;
@@ -129,7 +130,7 @@ export default function ArticlePageClient({ article }) {
                 <div className="overline text-[10px] mb-2">Tagged</div>
                 <div className="flex flex-wrap gap-1.5">
                   {article.tags.map((t) => (
-                    <Link key={t} href={`/tag/${encodeURIComponent(t)}`} className="tag-chip" data-testid={`article-tag-${t}`}>
+                    <Link key={t} href={tagHref(t)} className="tag-chip" data-testid={`article-tag-${t}`}>
                       #{t}
                     </Link>
                   ))}

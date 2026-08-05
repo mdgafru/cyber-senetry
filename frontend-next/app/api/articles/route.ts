@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { toArticleListDTO, POST_LIST_COLUMNS } from '@/lib/posts';
 import { getPublicClient } from '@/lib/supabase/public';
+import { tagToSlug } from '@/lib/seo/tag-slug';
 
 export const revalidate = 60;
 
@@ -8,6 +9,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const category = searchParams.get('category');
   const tag = searchParams.get('tag');
+  const tagSlug = searchParams.get('tag_slug');
   const q = searchParams.get('q');
   const limit = Math.min(parseInt(searchParams.get('limit') || '20', 10), 100);
   const offset = parseInt(searchParams.get('offset') || '0', 10);
@@ -21,7 +23,20 @@ export async function GET(request: Request) {
     .range(offset, offset + limit - 1);
 
   if (category) query = query.eq('category', category);
-  if (tag) query = query.contains('tags', [tag]);
+  if (tagSlug) {
+    const { data: tagRows } = await db.from('posts').select('tags').eq('status', 'published');
+    const names = new Set<string>();
+    for (const row of tagRows || []) {
+      for (const t of (row.tags as string[] | null) || []) {
+        if (t?.trim()) names.add(t.trim());
+      }
+    }
+    const matched = [...names].find((t) => tagToSlug(t) === tagSlug.toLowerCase());
+    if (matched) query = query.contains('tags', [matched]);
+    else return NextResponse.json({ items: [], total: 0 });
+  } else if (tag) {
+    query = query.contains('tags', [tag]);
+  }
   if (q?.trim()) {
     const term = q.trim().replace(/%/g, '');
     query = query.or(
