@@ -98,25 +98,46 @@ function buildUnsplashQuery(post, generated) {
   return words.slice(0, 10).join(' ') || desk;
 }
 
-async function fetchUnsplashHero(category, generated) {
+function photoIdFromUrl(url) {
+  if (!url) return null;
+  const match = String(url).match(/photo-([a-zA-Z0-9-]+)/);
+  return match?.[1] || null;
+}
+
+async function fetchUnsplashHero(category, generated, usedPhotoIds = new Set()) {
   const key = process.env.UNSPLASH_ACCESS_KEY?.trim();
   const fallback = DESK_IMAGES[category] || DESK_IMAGES.cybersecurity;
   if (!key) return fallback;
 
   const query = buildUnsplashQuery({ category }, generated);
-  const params = new URLSearchParams({ query, per_page: '1', orientation: 'landscape', content_filter: 'high' });
-  const res = await fetch(`https://api.unsplash.com/search/photos?${params}`, {
-    headers: { Authorization: `Client-ID ${key}`, 'Accept-Version': 'v1' },
-  });
-  if (!res.ok) {
-    console.warn(`Unsplash ${res.status}, using desk fallback`);
-    return fallback;
+  for (let page = 1; page <= 4; page++) {
+    const params = new URLSearchParams({
+      query,
+      per_page: '20',
+      page: String(page),
+      orientation: 'landscape',
+      content_filter: 'high',
+    });
+    const res = await fetch(`https://api.unsplash.com/search/photos?${params}`, {
+      headers: { Authorization: `Client-ID ${key}`, 'Accept-Version': 'v1' },
+    });
+    if (!res.ok) {
+      console.warn(`Unsplash ${res.status}, using desk fallback`);
+      return fallback;
+    }
+    const data = await res.json();
+    for (const photo of data.results || []) {
+      const regular = photo.urls?.regular;
+      if (!regular) continue;
+      const cdnId = photoIdFromUrl(regular);
+      if ((photo.id && usedPhotoIds.has(photo.id)) || (cdnId && usedPhotoIds.has(cdnId))) continue;
+      if (photo.id) usedPhotoIds.add(photo.id);
+      if (cdnId) usedPhotoIds.add(cdnId);
+      console.log(`   Image query: ${query}`);
+      return `${regular.split('?')[0]}?auto=format&fit=crop&w=1600&q=85`;
+    }
   }
-  const data = await res.json();
-  const regular = data.results?.[0]?.urls?.regular;
-  if (!regular) return fallback;
-  console.log(`   Image query: ${query}`);
-  return `${regular.split('?')[0]}?auto=format&fit=crop&w=1600&q=85`;
+  return fallback;
 }
 
 function parseJSON(raw) {
@@ -332,7 +353,14 @@ Return this exact JSON:
 
   const schema = [articleSchema, breadcrumbSchema, ...(faqSchema ? [faqSchema] : [])];
 
-  const heroImage = await fetchUnsplashHero(service.slug, generated);
+  const { data: existingImages } = await db.from('posts').select('featured_image');
+  const usedPhotoIds = new Set();
+  for (const row of existingImages || []) {
+    const id = photoIdFromUrl(row.featured_image);
+    if (id) usedPhotoIds.add(id);
+  }
+
+  const heroImage = await fetchUnsplashHero(service.slug, generated, usedPhotoIds);
 
   const postRow = {
     title: generated.title,

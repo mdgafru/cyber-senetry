@@ -6,7 +6,7 @@ import { sanitizeSeoFields, validateSeoInput, clampText } from '@/lib/content/me
 import { sanitizeArticleMarkdown } from '@/lib/content/markdown-inline';
 import { streamWithClaude, parseGeneratedJSON } from '@/lib/anthropic';
 import { toArticleDTO, slugify, calcReadingTime } from '@/lib/posts';
-import { fetchUnsplashHeroImage, photoIdFromUrl } from '@/lib/unsplash';
+import { fetchUnsplashHeroImage, loadUsedHeroPhotoIds } from '@/lib/unsplash';
 import { getAdminClient } from '@/lib/supabase/admin';
 import { requireApiAuth } from '@/lib/api-auth';
 
@@ -183,12 +183,8 @@ export async function POST(request: Request) {
         const slug = await ensureUniqueSlug(slugify(seo.title));
         const { data: service } = await db.from('services').select('id').eq('slug', category).maybeSingle();
 
-        const { data: existingImages } = await db.from('posts').select('featured_image');
-        const excludePhotoIds = new Set<string>();
-        for (const row of existingImages || []) {
-          const id = photoIdFromUrl(row.featured_image);
-          if (id) excludePhotoIds.add(id);
-        }
+        const { data: existingImages } = await db.from('posts').select('id, featured_image');
+        const excludePhotoIds = await loadUsedHeroPhotoIds(existingImages || []);
 
         const hero = await fetchUnsplashHeroImage({
           topic: topic.trim(),

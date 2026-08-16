@@ -1,7 +1,13 @@
 import { NextResponse } from 'next/server';
 import { requireApiAuth } from '@/lib/api-auth';
 import { getAdminClient } from '@/lib/supabase/admin';
-import { fetchUnsplashHeroImage, getUnsplashAccessKey, photoIdFromUrl, sleep } from '@/lib/unsplash';
+import {
+  fetchUnsplashHeroImage,
+  getUnsplashAccessKey,
+  loadUsedHeroPhotoIds,
+  photoIdFromUrl,
+  sleep,
+} from '@/lib/unsplash';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -55,13 +61,14 @@ export async function POST(request: Request) {
     query: string;
   }> = [];
 
-  const usedPhotoIds = new Set<string>();
   const { data: existingRows } = await db.from('posts').select('id, featured_image');
-  for (const row of existingRows || []) {
-    if (postId && row.id === postId) continue;
-    const id = photoIdFromUrl(row.featured_image);
-    if (id) usedPhotoIds.add(id);
-  }
+  // When refreshing all, start empty so we re-assign unique images across the batch.
+  // When refreshing one post, exclude every other post's current image.
+  const usedPhotoIds = refreshAll
+    ? new Set<string>()
+    : await loadUsedHeroPhotoIds(existingRows || [], { excludePostId: postId });
+
+  const assignedUrls = new Set<string>();
 
   for (const post of posts as PostRow[]) {
     const hero = await fetchUnsplashHeroImage({
@@ -72,6 +79,11 @@ export async function POST(request: Request) {
       keywords: post.keywords,
       excludePhotoIds: usedPhotoIds,
     });
+
+    if (hero.photoId) usedPhotoIds.add(hero.photoId);
+    const cdnId = photoIdFromUrl(hero.url);
+    if (cdnId) usedPhotoIds.add(cdnId);
+    assignedUrls.add(hero.url.split('?')[0]);
 
     const now = new Date().toISOString();
     const { error: updateErr } = await db
@@ -97,6 +109,7 @@ export async function POST(request: Request) {
   return NextResponse.json({
     updated: items.length,
     unsplash: items.filter((i) => i.source === 'unsplash').length,
+    uniqueImages: assignedUrls.size,
     items,
   });
 }

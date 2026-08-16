@@ -10,7 +10,7 @@ import { buildCombinedSchema, imageFilename, webpFilename } from './seo';
 import { sanitizeSeoFields } from './meta';
 import { sanitizeArticleMarkdown } from './markdown-inline';
 import { slugify, calcReadingTime } from '../posts';
-import { fetchUnsplashHeroImage, photoIdFromUrl } from '../unsplash';
+import { fetchUnsplashHeroImage, loadUsedHeroPhotoIds } from '../unsplash';
 import type { AutomationSettings, GeneratedArticle, Post, Service } from '../types';
 
 const DEFAULT_SETTINGS: AutomationSettings = {
@@ -144,13 +144,7 @@ async function getInternalLinkTargets(excludeServiceSlug: string) {
 async function getUsedHeroPhotoIds(excludePostId?: string) {
   const db = getAdminClient();
   const { data } = await db.from('posts').select('id, featured_image');
-  const used = new Set<string>();
-  for (const row of data || []) {
-    if (excludePostId && row.id === excludePostId) continue;
-    const id = photoIdFromUrl(row.featured_image);
-    if (id) used.add(id);
-  }
-  return used;
+  return loadUsedHeroPhotoIds(data || [], { excludePostId });
 }
 
 export async function generateArticleForService(
