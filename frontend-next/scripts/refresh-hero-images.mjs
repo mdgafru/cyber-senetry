@@ -103,15 +103,15 @@ function markUsed(keys, used) {
 }
 
 const VISUAL_CONCEPTS = [
-  { match: /prompt.?inject|jailbreak|adversarial|llm|language model|rag\b|inference|model.?theft|neural|\bai\b/i, visuals: 'artificial intelligence neural network computer laboratory' },
+  { match: /complian|policy|regulat|gdpr|nist|disclosure|legal|governance|eu.?ai.?act|delete.?act/i, visuals: 'legal documents desk business meeting compliance' },
   { match: /encrypt|key.?manage|cryptograph|token|certificate/i, visuals: 'digital padlock laptop cybersecurity desk' },
   { match: /cloud|aws|azure|kubernetes|serverless|container|multi.?cloud|cspm|ephemeral/i, visuals: 'data center server racks cloud computing' },
   { match: /breach|hack|threat|malware|exfiltrat|lateral.?movement|attack|soc\b|siem|detection/i, visuals: 'security operations center monitors cyber analyst' },
-  { match: /complian|policy|regulat|gdpr|nist|disclosure|legal|governance|eu.?ai.?act/i, visuals: 'legal documents desk business meeting compliance' },
   { match: /api|developer|code|devops|rasp|waf/i, visuals: 'software developer coding laptop terminal screen' },
   { match: /identity|zero.?trust|itdr|access.?control|shadow.?ai|shadow.?it/i, visuals: 'identity access security badge office technology' },
-  { match: /privacy|pii|broker|delete.?act|synthetic.?data|dataset/i, visuals: 'data privacy protection analytics dashboard' },
+  { match: /privacy|pii|broker|synthetic.?data|dataset|embedding/i, visuals: 'data privacy protection analytics dashboard' },
   { match: /ciso|executive|strategy|risk.?manage/i, visuals: 'executive business meeting modern office' },
+  { match: /prompt.?inject|jailbreak|adversarial|llm|language model|rag\b|inference|model.?theft|neural|artificial intelligence|security ai|ai model|ai training/i, visuals: 'artificial intelligence neural network computer laboratory' },
 ];
 
 const STOP = new Set(['the','and','for','with','from','that','this','what','why','how','when','are','was','will','can','your','our','vs','via','new','still','need','know','now','hidden','unseen','inside','prompt','editorial','hero','image','cinematic','dramatic','visualization','abstract']);
