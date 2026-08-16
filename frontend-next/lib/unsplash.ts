@@ -78,6 +78,9 @@ type UnsplashPhoto = {
   id?: string;
   urls?: { regular?: string };
   user?: { name?: string };
+  alt_description?: string | null;
+  description?: string | null;
+  tags?: Array<{ title?: string }>;
 };
 
 export function getUnsplashAccessKey(): string | null {
@@ -116,34 +119,108 @@ function markUsed(keys: string[], excludePhotoIds: Set<string>) {
   for (const k of keys) excludePhotoIds.add(k);
 }
 
-/** Build a focused Unsplash search query from article metadata. */
-export function buildUnsplashQuery(input: HeroImageInput, variant = 0): string {
-  const category = (input.category || 'cybersecurity').toLowerCase();
-  const deskQuery = DESK_QUERIES[category] || DESK_QUERIES.cybersecurity;
+/** Map cyber jargon → photographable Unsplash scenes. */
+const VISUAL_CONCEPTS: Array<{ match: RegExp; visuals: string }> = [
+  { match: /complian|policy|regulat|gdpr|nist|iso|disclosure|legal|governance|eu.?ai.?act|privacy.?law|delete.?act/i, visuals: 'legal documents desk business meeting compliance' },
+  { match: /encrypt|key.?manage|cryptograph|token|hmac|certificate/i, visuals: 'digital padlock laptop cybersecurity desk' },
+  { match: /cloud|aws|azure|gcp|kubernetes|serverless|container|multi.?cloud|cspm|spot.?instance|ephemeral/i, visuals: 'data center server racks cloud computing' },
+  { match: /breach|hack|threat|malware|ransom|exfiltrat|lateral.?movement|attack|soc\b|siem|detection/i, visuals: 'security operations center monitors cyber analyst' },
+  { match: /api|developer|code|devops|rasp|waf|application.?secur/i, visuals: 'software developer coding laptop terminal screen' },
+  { match: /identity|zero.?trust|itdr|access.?control|badge|shadow.?ai|shadow.?it/i, visuals: 'identity access security badge office technology' },
+  { match: /data.?residen|privacy|pii|broker|synthetic.?data|dataset|embedding/i, visuals: 'data privacy protection analytics dashboard' },
+  { match: /board|ciso|executive|strategy|risk.?manage/i, visuals: 'executive business meeting modern office' },
+  { match: /network|firewall|vpn|router|packet/i, visuals: 'network cables server room infrastructure' },
+  { match: /prompt.?inject|jailbreak|adversarial|llm|language model|rag\b|inference|model.?theft|model.?extract|neural|artificial intelligence|security ai|ai model|ai training/i, visuals: 'artificial intelligence neural network computer laboratory' },
+];
 
-  const raw = [
-    input.focusKeyword,
-    ...(input.keywords || []).slice(0, 2),
-    input.topic,
-    input.title,
-    input.featuredImagePrompt,
-    deskQuery,
-  ]
-    .filter(Boolean)
-    .join(' ')
+const STOP_WORDS = new Set([
+  'the', 'and', 'for', 'with', 'from', 'that', 'this', 'what', 'why', 'how', 'when', 'who',
+  'are', 'was', 'were', 'been', 'will', 'can', 'cant', 'dont', 'into', 'over', 'under',
+  'your', 'our', 'their', 'vs', 'via', 'new', 'one', 'two', 'year', 'years', 'still',
+  'need', 'know', 'now', 'get', 'getting', 'making', 'switch', 'reality', 'problem',
+  'hidden', 'unseen', 'inside', 'across', 'through', 'using', 'based', 'detailed',
+  'prompt', 'editorial', 'hero', 'image', 'photo', 'cinematic', 'dramatic', 'wide',
+  'angle', 'visualization', 'abstract', 'sophisticated', 'professional',
+]);
+
+function tokenize(text: string): string[] {
+  return text
+    .toLowerCase()
     .replace(/[^\w\s-]/g, ' ')
     .replace(/\s+/g, ' ')
-    .trim();
+    .trim()
+    .split(' ')
+    .filter((w) => w.length > 2 && !STOP_WORDS.has(w));
+}
 
-  const words = [...new Set(raw.toLowerCase().split(' '))].filter((w) => w.length > 2);
-  let query = words.slice(0, 10).join(' ') || deskQuery;
+function visualSceneForText(text: string, category: string): string {
+  for (const rule of VISUAL_CONCEPTS) {
+    if (rule.match.test(text)) return rule.visuals;
+  }
+  return DESK_QUERIES[category] || DESK_QUERIES.cybersecurity;
+}
 
-  // Rotate query slightly when earlier pages are exhausted / all duplicates.
-  if (variant === 1) query = `${deskQuery} ${input.focusKeyword || words[0] || ''}`.trim();
-  if (variant === 2) query = `${category} security technology workstation`.trim();
-  if (variant >= 3) query = `${deskQuery} abstract digital`.trim();
+/**
+ * Build Unsplash search queries that favor photographable scenes
+ * matching the article topic (not abstract SEO jargon).
+ */
+export function buildUnsplashQuery(input: HeroImageInput, variant = 0): string {
+  const category = (input.category || 'cybersecurity').toLowerCase();
+  const contentBlob = [input.title, input.topic, input.focusKeyword, ...(input.keywords || [])]
+    .filter(Boolean)
+    .join(' ');
 
-  return query;
+  const scene = visualSceneForText(contentBlob, category);
+  const promptTokens = tokenize(input.featuredImagePrompt || '').slice(0, 6);
+  const focusTokens = tokenize(input.focusKeyword || '').slice(0, 3);
+  const titleTokens = tokenize(input.title || '').slice(0, 4);
+
+  // Prefer Claude's Unsplash-style keywords when present and concrete.
+  const promptLooksVisual =
+    promptTokens.length >= 3 &&
+    !/adversarial|jailbreak|governance|compliance stacks|visualization/i.test(
+      input.featuredImagePrompt || ''
+    );
+
+  if (variant === 0 && promptLooksVisual) {
+    return [...new Set([...promptTokens, ...scene.split(' ').slice(0, 3)])].slice(0, 8).join(' ');
+  }
+
+  if (variant === 0) {
+    return [...new Set([...focusTokens, ...titleTokens.slice(0, 2), ...scene.split(' ')])]
+      .slice(0, 8)
+      .join(' ');
+  }
+  if (variant === 1) {
+    return `${scene} ${focusTokens.join(' ')}`.trim();
+  }
+  if (variant === 2) {
+    return `${scene} technology workplace`.trim();
+  }
+  return `${DESK_QUERIES[category] || DESK_QUERIES.cybersecurity} modern office`.trim();
+}
+
+export function relevanceTerms(input: HeroImageInput): string[] {
+  return [
+    ...tokenize(input.focusKeyword || ''),
+    ...tokenize(input.title || '').slice(0, 6),
+    ...tokenize(input.topic || '').slice(0, 4),
+    ...tokenize((input.keywords || []).join(' ')).slice(0, 4),
+    ...tokenize(input.featuredImagePrompt || '').slice(0, 6),
+  ];
+}
+
+function scorePhoto(photo: UnsplashPhoto, terms: string[]): number {
+  const tagText = (photo.tags || []).map((t) => t.title || '').join(' ');
+  const hay = `${photo.alt_description || ''} ${photo.description || ''} ${tagText}`.toLowerCase();
+  if (!hay.trim()) return 0;
+  let score = 0;
+  for (const term of terms) {
+    if (term.length < 3) continue;
+    if (hay.includes(term)) score += 3;
+  }
+  if (photo.alt_description) score += 1;
+  return score;
 }
 
 async function searchUnsplashPhotos(
@@ -158,6 +235,7 @@ async function searchUnsplashPhotos(
     page: String(page),
     orientation: 'landscape',
     content_filter: 'high',
+    order_by: 'relevant',
   });
 
   const res = await fetch(`https://api.unsplash.com/search/photos?${params}`, {
@@ -179,15 +257,19 @@ async function searchUnsplashPhotos(
 
 function pickUniquePhoto(
   photos: UnsplashPhoto[],
-  excludePhotoIds: Set<string>
+  excludePhotoIds: Set<string>,
+  terms: string[] = []
 ): UnsplashPhoto | null {
-  for (const photo of photos) {
-    if (!photo.urls?.regular) continue;
-    const keys = photoIdentityKeys({ id: photo.id, url: photo.urls.regular });
-    if (!keys.length || isExcluded(keys, excludePhotoIds)) continue;
-    return photo;
-  }
-  return null;
+  const ranked = photos
+    .filter((photo) => {
+      if (!photo.urls?.regular) return false;
+      const keys = photoIdentityKeys({ id: photo.id, url: photo.urls.regular });
+      return keys.length > 0 && !isExcluded(keys, excludePhotoIds);
+    })
+    .map((photo) => ({ photo, score: scorePhoto(photo, terms) }))
+    .sort((a, b) => b.score - a.score);
+
+  return ranked[0]?.photo || null;
 }
 
 function pickUniqueDeskFallback(category: string, excludePhotoIds: Set<string>): string {
@@ -201,7 +283,6 @@ function pickUniqueDeskFallback(category: string, excludePhotoIds: Set<string>):
     markUsed(keys, excludePhotoIds);
     return url;
   }
-  // Last resort — still return a desk image (should be rare).
   return deskHeroImage(category);
 }
 
@@ -210,6 +291,7 @@ export async function fetchUnsplashHeroImage(input: HeroImageInput): Promise<Her
   const category = input.category || 'cybersecurity';
   const key = getUnsplashAccessKey();
   const excludePhotoIds = input.excludePhotoIds || new Set<string>();
+  const terms = relevanceTerms(input);
 
   if (!key) {
     const url = pickUniqueDeskFallback(category, excludePhotoIds);
@@ -224,9 +306,9 @@ export async function fetchUnsplashHeroImage(input: HeroImageInput): Promise<Her
   try {
     for (let variant = 0; variant < 4; variant++) {
       const query = buildUnsplashQuery(input, variant);
-      for (let page = 1; page <= 5; page++) {
+      for (let page = 1; page <= 4; page++) {
         const photos = await searchUnsplashPhotos(query, key, page);
-        const photo = pickUniquePhoto(photos, excludePhotoIds);
+        const photo = pickUniquePhoto(photos, excludePhotoIds, terms);
         if (!photo?.urls?.regular) continue;
 
         const keys = photoIdentityKeys({ id: photo.id, url: photo.urls.regular });

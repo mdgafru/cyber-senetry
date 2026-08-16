@@ -30,6 +30,14 @@ VERIFIED DATA ONLY:
 - Do NOT fabricate quotes, interviews, or named sources.
 - Do NOT invent product version numbers or vendor roadmaps.
 
+FEATURED IMAGE (Unsplash stock photo search):
+- featured_image_prompt must be 4-8 concrete visual search keywords for a real photograph — NOT an AI-art style scene description.
+- Prefer photographable subjects: people, offices, data centers, laptops, locks, documents, server rooms, dashboards, city skylines, hands typing.
+- Map abstract cyber topics to visuals (e.g. "encryption" → "padlock laptop desk", "cloud" → "data center server racks", "compliance" → "legal documents desk", "AI model" → "neural network screen laboratory").
+- Avoid abstract words alone: vulnerability, threat, adversarial, governance, compliance stacks.
+- Example good: "security operations center monitors analyst dark room"
+- Example bad: "dramatic visualization of adversarial suffix attacks on large language models"
+
 SEO FIELD LENGTH LIMITS (HARD — count characters carefully):
 - title: 50-70 characters (never over 70)
 - subtitle: 80-120 characters (never over 120)
@@ -87,7 +95,7 @@ Return this exact JSON structure (HARD character caps — over-limit values will
   "tags": ["4-6 editorial tags"],
   "faq": [{"question": "...", "answer": "..."}],
   "table_of_contents": [{"id": "section-slug", "title": "Section Title", "level": 2}],
-  "featured_image_prompt": "Detailed prompt for editorial hero image",
+  "featured_image_prompt": "4-8 Unsplash photo keywords e.g. security operations center monitors dark",
   "image_alt": "SEO alt text for featured image MAX 125 chars",
   "image_caption": "Photo caption",
   "seo_title": "MAX 60 chars",
@@ -145,7 +153,7 @@ Return JSON (HARD length caps):
   "tags": [...],
   "faq": [{"question":"...","answer":"..."}],
   "table_of_contents": [],
-  "featured_image_prompt": "...",
+  "featured_image_prompt": "4-8 Unsplash photo keywords matching article topic",
   "image_alt": "MAX 125 chars",
   "image_caption": "...",
   "seo_title": "MAX 60 chars",
@@ -210,7 +218,7 @@ Return ONLY this JSON (no title/seo fields — editor already set those):
   "excerpt": "140-160 char excerpt${params.excerpt ? ` (prefer: ${params.excerpt.replace(/"/g, '\\"').slice(0, 160)})` : ''}",
   "faq": [{"question":"...","answer":"..."}],
   "table_of_contents": [{"id":"section-slug","title":"Section Title","level":2}],
-  "featured_image_prompt": "hero image prompt",
+  "featured_image_prompt": "4-8 Unsplash photo keywords matching article topic",
   "image_alt": "SEO alt text MAX 125",
   "image_caption": "caption"
 }`;

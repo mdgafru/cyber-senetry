@@ -102,21 +102,51 @@ function markUsed(keys, used) {
   for (const k of keys) used.add(k);
 }
 
-function buildQuery(post, variant = 0) {
-  const category = post.category || 'cybersecurity';
-  const desk = DESK_QUERIES[category] || DESK_QUERIES.cybersecurity;
-  const raw = [post.focus_keyword, ...(post.keywords || []).slice(0, 2), post.title, post.featured_prompt, desk]
-    .filter(Boolean)
-    .join(' ')
+const VISUAL_CONCEPTS = [
+  { match: /prompt.?inject|jailbreak|adversarial|llm|language model|rag\b|inference|model.?theft|neural|\bai\b/i, visuals: 'artificial intelligence neural network computer laboratory' },
+  { match: /encrypt|key.?manage|cryptograph|token|certificate/i, visuals: 'digital padlock laptop cybersecurity desk' },
+  { match: /cloud|aws|azure|kubernetes|serverless|container|multi.?cloud|cspm|ephemeral/i, visuals: 'data center server racks cloud computing' },
+  { match: /breach|hack|threat|malware|exfiltrat|lateral.?movement|attack|soc\b|siem|detection/i, visuals: 'security operations center monitors cyber analyst' },
+  { match: /complian|policy|regulat|gdpr|nist|disclosure|legal|governance|eu.?ai.?act/i, visuals: 'legal documents desk business meeting compliance' },
+  { match: /api|developer|code|devops|rasp|waf/i, visuals: 'software developer coding laptop terminal screen' },
+  { match: /identity|zero.?trust|itdr|access.?control|shadow.?ai|shadow.?it/i, visuals: 'identity access security badge office technology' },
+  { match: /privacy|pii|broker|delete.?act|synthetic.?data|dataset/i, visuals: 'data privacy protection analytics dashboard' },
+  { match: /ciso|executive|strategy|risk.?manage/i, visuals: 'executive business meeting modern office' },
+];
+
+const STOP = new Set(['the','and','for','with','from','that','this','what','why','how','when','are','was','will','can','your','our','vs','via','new','still','need','know','now','hidden','unseen','inside','prompt','editorial','hero','image','cinematic','dramatic','visualization','abstract']);
+
+function tokenize(text) {
+  return String(text || '')
+    .toLowerCase()
     .replace(/[^\w\s-]/g, ' ')
     .replace(/\s+/g, ' ')
-    .trim();
-  const words = [...new Set(raw.toLowerCase().split(' '))].filter((w) => w.length > 2);
-  let query = words.slice(0, 10).join(' ') || desk;
-  if (variant === 1) query = `${desk} ${post.focus_keyword || words[0] || ''}`.trim();
-  if (variant === 2) query = `${category} security technology workstation`.trim();
-  if (variant >= 3) query = `${desk} abstract digital`.trim();
-  return query;
+    .trim()
+    .split(' ')
+    .filter((w) => w.length > 2 && !STOP.has(w));
+}
+
+function visualScene(text, category) {
+  for (const rule of VISUAL_CONCEPTS) {
+    if (rule.match.test(text)) return rule.visuals;
+  }
+  return DESK_QUERIES[category] || DESK_QUERIES.cybersecurity;
+}
+
+function buildQuery(post, variant = 0) {
+  const category = post.category || 'cybersecurity';
+  const blob = [post.title, post.focus_keyword, ...(post.keywords || [])].filter(Boolean).join(' ');
+  const scene = visualScene(blob, category);
+  const focus = tokenize(post.focus_keyword).slice(0, 3);
+  const title = tokenize(post.title).slice(0, 3);
+  const prompt = tokenize(post.featured_prompt).slice(0, 6);
+  if (variant === 0 && prompt.length >= 3) {
+    return [...new Set([...prompt, ...scene.split(' ').slice(0, 3)])].slice(0, 8).join(' ');
+  }
+  if (variant === 0) return [...new Set([...focus, ...title, ...scene.split(' ')])].slice(0, 8).join(' ');
+  if (variant === 1) return `${scene} ${focus.join(' ')}`.trim();
+  if (variant === 2) return `${scene} technology workplace`.trim();
+  return `${DESK_QUERIES[category] || DESK_QUERIES.cybersecurity} modern office`;
 }
 
 async function searchPhotos(query, page, key) {
