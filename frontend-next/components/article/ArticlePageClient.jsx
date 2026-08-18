@@ -96,7 +96,6 @@ export default function ArticlePageClient({ article }) {
                 <Bookmark className={`w-3 h-3 ${saved ? 'fill-current' : ''}`} />
                 {saved ? 'Saved' : 'Save'}
               </button>
-              <ShareBar title={article.title} slug={article.slug} />
             </div>
           </div>
         </header>
@@ -114,6 +113,10 @@ export default function ArticlePageClient({ article }) {
             </div>
           </figure>
         )}
+
+        <div className="mb-5">
+          <ShareBar title={article.title} slug={article.slug} image={article.hero_image} />
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 w-full items-start">
           <div className="lg:col-span-8 w-full min-w-0 order-2 lg:order-1">
@@ -137,6 +140,10 @@ export default function ArticlePageClient({ article }) {
                 </div>
               </div>
             )}
+
+            <div className="mt-6">
+              <ShareBar title={article.title} slug={article.slug} image={article.hero_image} />
+            </div>
 
             <div className="mt-6 brutal-border bg-foreground text-background p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>

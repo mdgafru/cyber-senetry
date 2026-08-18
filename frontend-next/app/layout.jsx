@@ -3,6 +3,7 @@ import { Toaster } from 'sonner';
 import Providers from '@/components/Providers';
 import AlliAiScript from '@/components/seo/AlliAiScript';
 import { getSiteUrl } from '@/lib/seo/site-url';
+import { ogImageMeta } from '@/lib/seo/share-image';
 
 export const metadata = {
   metadataBase: new URL(getSiteUrl()),
@@ -33,11 +34,14 @@ export const metadata = {
     siteName: 'cybersentry360',
     title: 'cybersentry360 - AI & Cybersecurity Editorial',
     description: 'Rigorous reporting on AI and cybersecurity for enterprise technology leaders.',
+    url: getSiteUrl(),
+    images: [ogImageMeta(null, 'cybersentry360')],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'cybersentry360',
     description: 'Rigorous reporting on AI and cybersecurity for enterprise technology leaders.',
+    images: [ogImageMeta(null, 'cybersentry360').url],
   },
   icons: {
     icon: [

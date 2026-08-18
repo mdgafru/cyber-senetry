@@ -1,4 +1,5 @@
 import type { Post, AutomationSettings, FAQItem, GeoData } from '../types';
+import { toOgImageUrl } from '../seo/share-image';
 
 export function buildArticleSchema(post: Post, settings: AutomationSettings) {
   const url = `${settings.site_url}/article/${post.slug}`;
@@ -8,7 +9,7 @@ export function buildArticleSchema(post: Post, settings: AutomationSettings) {
     '@type': 'NewsArticle',
     headline: post.meta_title || post.title,
     description: post.meta_description || post.excerpt,
-    image: post.featured_image ? [post.featured_image] : [],
+    image: [toOgImageUrl(post.featured_image)],
     datePublished: post.published_at,
     dateModified: post.updated_at,
     author: {

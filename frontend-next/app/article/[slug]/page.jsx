@@ -6,6 +6,7 @@ import {
   incrementArticleViews,
 } from '@/lib/posts/public-article';
 import { getSiteUrl } from '@/lib/seo/site-url';
+import { ogImageMeta } from '@/lib/seo/share-image';
 
 export const revalidate = 60;
 
@@ -28,6 +29,7 @@ export async function generateMetadata({ params }) {
   const description =
     article.meta_description || article.seo_description || article.excerpt || article.subtitle || '';
   const url = `${getSiteUrl()}/article/${article.slug}`;
+  const image = ogImageMeta(article.hero_image, article.title);
 
   return {
     title,
@@ -37,6 +39,8 @@ export async function generateMetadata({ params }) {
     },
     openGraph: {
       type: 'article',
+      siteName: 'cybersentry360',
+      locale: 'en_US',
       title: article.og_title || title,
       description: article.og_description || description,
       url,
@@ -45,15 +49,13 @@ export async function generateMetadata({ params }) {
       authors: [article.author],
       section: article.category || undefined,
       tags: article.tags,
-      images: article.hero_image
-        ? [{ url: article.hero_image, alt: article.title }]
-        : undefined,
+      images: [image],
     },
     twitter: {
       card: 'summary_large_image',
       title: article.twitter_title || article.og_title || title,
       description: article.twitter_description || article.og_description || description,
-      images: article.hero_image ? [article.hero_image] : undefined,
+      images: [image.url],
     },
   };
 }
