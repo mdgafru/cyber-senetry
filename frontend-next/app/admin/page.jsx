@@ -50,7 +50,7 @@ export default function AdminDashboardPage() {
         {automation && (
           <div className="mt-3 font-mono text-xs uppercase tracking-widest flex items-center gap-2">
             <span className={`w-2 h-2 rounded-full ${automation.enabled ? 'bg-green-500' : 'bg-primary'}`} />
-            Automation {automation.enabled ? 'Active' : 'Paused'} · Daily at {automation.daily_time} UTC
+            Automation {automation.enabled ? 'Active' : 'Paused'} · Tue &amp; Fri at {automation.daily_time} UTC
           </div>
         )}
       </div>
@@ -69,7 +69,7 @@ export default function AdminDashboardPage() {
         <Link href="/admin/automation" className="brutal-border p-6 bg-card hover:shadow-brutal transition-all group" data-testid="quick-automation">
           <Zap className="w-6 h-6 text-primary mb-3" />
           <div className="font-heading font-bold uppercase text-lg">Automation</div>
-          <p className="text-sm text-muted-foreground mt-1">Daily generation, scheduling, and AI settings.</p>
+          <p className="text-sm text-muted-foreground mt-1">Tue &amp; Fri generation, scheduling, and AI settings.</p>
         </Link>
         <Link href="/admin/generate" className="brutal-border p-6 bg-card hover:shadow-brutal transition-all group" data-testid="quick-generate">
           <Sparkles className="w-6 h-6 text-primary mb-3" />

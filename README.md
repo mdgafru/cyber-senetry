@@ -12,7 +12,7 @@ Primary codebase: [`frontend-next/`](./frontend-next)
 - Article pages with TOC, FAQ, SEO/OG meta
 - Admin newsroom: AI draft, manual generate, publish, newsletter, automation
 - Newsletter subscribe / unsubscribe
-- Vercel-ready (`vercel.json` cron for daily generate)
+- Vercel-ready (`vercel.json` cron for Tue & Fri generate)
 
 ## Quick start
 

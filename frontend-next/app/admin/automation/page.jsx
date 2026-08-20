@@ -46,7 +46,7 @@ export default function AdminAutomationPage() {
     <div className="p-6 md:p-10 max-w-4xl" data-testid="admin-automation-page">
       <div className="border-b-2 border-foreground pb-6 mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <div className="overline text-primary flex items-center gap-2"><Zap className="w-3 h-3" /> Daily Automation</div>
+          <div className="overline text-primary flex items-center gap-2"><Zap className="w-3 h-3" /> Tue &amp; Fri Automation</div>
           <h1 className="font-heading font-black uppercase text-4xl md:text-5xl tracking-tighter">Automation</h1>
           {nextService && <p className="mt-2 font-mono text-xs uppercase tracking-widest text-muted-foreground">Next in queue: <span className="text-primary">{nextService.name}</span></p>}
         </div>
@@ -56,17 +56,17 @@ export default function AdminAutomationPage() {
       <div className="brutal-border p-6 bg-card space-y-5">
         <label className="flex items-center gap-3 border-2 border-foreground p-4 cursor-pointer">
           <input type="checkbox" checked={settings.enabled} onChange={(e) => set('enabled', e.target.checked)} />
-          <span className="font-mono text-xs uppercase">Enable daily automation</span>
+          <span className="font-mono text-xs uppercase">Enable Tue &amp; Fri automation</span>
         </label>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label className="block">
-            <span className="overline block mb-2">Daily generation time (UTC)</span>
+            <span className="overline block mb-2">Generation time (UTC) · Tue &amp; Fri</span>
             <input type="time" value={settings.daily_time} onChange={(e) => set('daily_time', e.target.value)}
               className="w-full border-2 border-foreground px-4 py-3 font-mono text-sm bg-background focus:outline-none" />
           </label>
           <label className="block">
-            <span className="overline block mb-2">Articles per day</span>
+            <span className="overline block mb-2">Articles per run</span>
             <input type="number" min={1} max={5} value={settings.articles_per_day} onChange={(e) => set('articles_per_day', parseInt(e.target.value))}
               className="w-full border-2 border-foreground px-4 py-3 font-mono text-sm bg-background focus:outline-none" />
           </label>
@@ -113,7 +113,7 @@ export default function AdminAutomationPage() {
       <div className="mt-8 brutal-border p-6 bg-muted font-mono text-xs">
         <div className="overline mb-3">How it works</div>
         <ul className="space-y-2 text-muted-foreground">
-          <li>· Every day at the scheduled time, the cron job selects the next enabled service (round-robin).</li>
+          <li>· Twice a week (Tuesday &amp; Friday) at the scheduled time, the cron job selects the next enabled service (round-robin).</li>
           <li>· Claude generates a unique 1800-2500 word article with full SEO metadata.</li>
           <li>· The article is automatically published - no manual approval required.</li>
           <li>· Topics are tracked in prompt_history to never repeat.</li>

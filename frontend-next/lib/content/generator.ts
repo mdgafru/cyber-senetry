@@ -433,7 +433,7 @@ export async function runDailyAutomation(): Promise<{
   await db.from('cron_logs').insert({
     job_type: 'daily_generate',
     status: 'started',
-    message: 'Daily article generation started',
+    message: 'Tue/Fri article generation started',
   });
 
   const service = await getNextService();

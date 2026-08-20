@@ -42,7 +42,7 @@ export default function AdminServicesPage() {
       <div className="border-b-2 border-foreground pb-6 mb-8">
         <div className="overline text-primary">Content Desks</div>
         <h1 className="font-heading font-black uppercase text-4xl md:text-5xl tracking-tighter">Services</h1>
-        <p className="mt-2 font-serif italic text-lg text-muted-foreground">Each enabled service receives daily AI-generated articles in rotation.</p>
+        <p className="mt-2 font-serif italic text-lg text-muted-foreground">Each enabled service receives AI-generated articles twice a week (Tue &amp; Fri) in rotation.</p>
       </div>
 
       <form onSubmit={add} className="brutal-border p-6 bg-card mb-8 grid grid-cols-1 md:grid-cols-4 gap-4">
